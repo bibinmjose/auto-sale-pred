@@ -4,7 +4,7 @@ from keras.layers import Dense, Dropout, Embedding, Activation, Input, concatena
 from keras.layers.normalization import BatchNormalization
 from keras.layers.advanced_activations import PReLU
 from keras.optimizers import Adam
-from keras_tqdm import TQDMNotebookCallback
+from keras_tqdm import TQDMCallback
 from keras import backend as K
 from sklearn.preprocessing import LabelEncoder
 from sklearn.utils.validation import check_is_fitted
@@ -13,7 +13,7 @@ from sklearn.model_selection import train_test_split
 import numpy as np
 import pandas as pd
 import warnings
-from tqdm import tqdm_notebook
+from tqdm import tqdm
 warnings.filterwarnings("ignore")
 
 # Helper functions:
@@ -51,7 +51,7 @@ def get_embedding_info(data, categorical_variables=None):
     if categorical_variables is None:
         categorical_variables = data.select_dtypes(include='object').columns
 
-    return {col:(data[col].nunique(),min(50,(data[col].nunique()+ 1) //2)) for col in categorical_variables}
+    return {col:(data[col].nunique(),min(10,(data[col].nunique()+ 1) //4)) for col in categorical_variables}
 
 
 def get_label_encoded_data(data, categorical_variables=None):
@@ -166,7 +166,7 @@ def get_embeddings(X_train, y_train, categorical_embedding_info, is_classificati
 
 
     nnet.compile(loss=loss, optimizer='adam', metrics=[metrics])
-    nnet.fit(x_inputs, y_train.values, batch_size=batch_size, epochs=epochs, validation_split=0.2, callbacks=[TQDMNotebookCallback()], verbose=0)
+    nnet.fit(x_inputs, y_train.values, batch_size=batch_size, epochs=epochs, validation_split=0.2, callbacks=[TQDMCallback()], verbose=0)
 
     embs = list(map(lambda x: x.get_weights()[0], [x for x in nnet.layers if 'Embedding' in str(x)]))
     embeddings = {var: emb for var, emb in zip(categorical_embedding_info.keys(), embs)}
@@ -182,7 +182,7 @@ def get_embeddings_in_dataframe(embeddings, encoders):
     assert len(embeddings)==len(encoders), "Categorical variables in embeddings does not match with those of encoders"
 
     dfs={}
-    for cat_var in tqdm_notebook(embeddings.keys()):
+    for cat_var in tqdm(embeddings.keys()):
         df = pd.DataFrame(embeddings[cat_var])
         df.index = encoders[cat_var].classes_
         df.columns = [cat_var +  '_embedding_' + str(num) for num in df.columns]
@@ -204,7 +204,7 @@ def fit_transform(data, embeddings, encoders, drop_categorical_vars=False):
     assert len(embeddings)==len(encoders), "Categorical variables in embeddings does not match with those of encoders"
 
     dfs={}
-    for cat_var in tqdm_notebook(embeddings.keys()):
+    for cat_var in tqdm(embeddings.keys()):
         df = pd.DataFrame(embeddings[cat_var])
         df.index = encoders[cat_var].classes_
         df.columns = [cat_var +  '_embedding_' + str(num) for num in df.columns]
