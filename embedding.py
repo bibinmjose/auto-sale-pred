@@ -39,7 +39,7 @@ class __LabelEncoder__(LabelEncoder):
         return e
 
 
-def get_embedding_info(data, categorical_variables=None):
+def get_embedding_info(data, categorical_variables=None, max_n=10):
     '''
     this function identifies categorical variables and its embedding size
     :data: input data [dataframe]
@@ -51,7 +51,7 @@ def get_embedding_info(data, categorical_variables=None):
     if categorical_variables is None:
         categorical_variables = data.select_dtypes(include='object').columns
 
-    return {col:(data[col].nunique(),min(10,(data[col].nunique()+ 1) //4)) for col in categorical_variables}
+    return {col:(data[col].nunique(),min(max_n,(data[col].nunique()+ 1) //4)) for col in categorical_variables}
 
 
 def get_label_encoded_data(data, categorical_variables=None):
