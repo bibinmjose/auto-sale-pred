@@ -14,11 +14,22 @@
 #TODO: Train - Test split date
 
 ### R-2 Score comparison
-| Model            | Train | Test  |
-|:-----------------|:-----:|:-----:|
-| Ridge Regression | 0.785 | 0.679 |
-| XG-Boost         | 0.953 | 0.837 |
+| Model     | Train | Test  |
+|:----------|:-----:|:-----:|
+| Ridge     | 0.785 | 0.679 |
+| XG-Boost  | 0.953 | 0.837 |
 
-![Model_Result](model_result_comp.png)
+![Model_Result](nbs/model_result_comp.png)
 
 ## How to Reproduce
+
+1. `cd` into _root folder_ and follow below
+2. `pip install -r requirements.txt`
+
+3. move data to `data/saleprice_dataset.csv`
+
+4. run `dataprocess.py` to generte test/train datset
+
+5. run `embed.py` to generate embedding in `/data/embeddings.pkl`
+
+6. run `train.py` to generate `model.json`
