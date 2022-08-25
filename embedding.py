@@ -1,3 +1,6 @@
+'''https://github.com/Shivanandroy/CategoricalEmbedder/blob/master/build/lib/categorical_embedder/__init__.py
+'''
+
 # Necessary imports:
 from keras.models import Sequential, Model, model_from_json
 from keras.layers import Dense, Dropout, Embedding, Activation, Input, concatenate, Reshape, Flatten

@@ -7,7 +7,7 @@
 ## Solution Approach
  - KNN imputer
  - Feature Engineering
- - Scaling & Encoding
+ - Scaling & Encoding: scaling not used for xgb model.
 
 ## Model Results
 
