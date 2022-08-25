@@ -1,0 +1,11 @@
+feat_cols:
+  - Odometer
+  - Power
+  - Fuel_Urban
+  - inventory_days
+  - age_sell_day
+  - km_per_day
+  - fuel_per_power
+  - odo_per_fuel
+  - odo_per_power
+  - pow_times_odo
