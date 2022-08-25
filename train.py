@@ -7,7 +7,7 @@ import pickle
 import os
 import pdb
 import yaml
-import xgb
+import xgboost as xgb
 import optuna
 from joblib import dump
 from sklearn.impute import KNNImputer
@@ -39,7 +39,6 @@ def get_embedded_feat(feat, encod_dict, feat_name='Family_Code'):
     # print(feat_tranf._merge.value_counts())
     return feat_tranf.loc[:,[c for c in encodings.columns if c.startswith(feat_name)]]
 
-
 def assemble_features(df, feat_cols, embeddings):
     '''Assemble all retrived embeddings and features into one dataframe
     '''
@@ -60,7 +59,6 @@ def impute_missing(df, out_dir):
     df_imputed = knn.transform(df)
     dump(knn, os.path.join(out_dir,'knnimputer.joblib'))
     return df_imputed
-
 
 def objective(trial, X_train, y_train):
     '''Objective function for the optimizer
@@ -90,7 +88,7 @@ def objective(trial, X_train, y_train):
 
 # train function
 def train(args):
-    '''Train runner to create a model.
+    '''Train fucntion to create a model.
     '''
     # load config and all data files
     config = yaml.safe_load(open(args.config))
