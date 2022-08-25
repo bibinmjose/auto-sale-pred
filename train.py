@@ -9,7 +9,7 @@ import pdb
 import yaml
 import xgboost as xgb
 import optuna
-from joblib import dump
+from joblib import dump, load
 from sklearn.impute import KNNImputer
 from sklearn.metrics import r2_score
 from sklearn.model_selection import cross_val_score
@@ -19,10 +19,12 @@ def load_files(args):
     '''Load all datasets into a datadict
     '''
     _pth_trn = os.path.join(args.pre, args.train)
+    _pth_tst = os.path.join(args.pre, args.test)
     _pth_emb = os.path.join(args.pre, 'embeddings.pkl')
 
     _dict=dict()
     _dict['train'] = pd.read_csv(_pth_trn)
+    _dict['test'] = pd.read_csv(_pth_tst)
     with open(_pth_emb, 'rb') as handle:
         _dict['embed'] = pickle.load(handle)
 
@@ -48,16 +50,22 @@ def assemble_features(df, feat_cols, embeddings):
         
     return pd.concat([df.loc[:,feat_cols]]+ _dflist, axis=1)
 
-def impute_missing(df, out_dir):
+def impute_missing(df, out_dir, train=True):
     '''Returns imputed tesonr for train
     Saves the imputer to out_path.
     '''
-    # knn = KNNImputer()
-    # knn.fit(df)
-    # df_imputed = knn.transform(df)
-    # dump(knn, os.path.join(out_dir,'knnimputer.joblib'))
-    # np.save(os.path.join(out_dir,'X_train.npy'), df_imputed) # save
-    df_imputed = np.load(os.path.join(out_dir,'X_train.npy'))
+    if train is True:
+        knn = KNNImputer()
+        knn.fit(df)
+        df_imputed = knn.transform(df)
+        dump(knn, os.path.join(out_dir,'knnimputer.joblib'))
+        np.save(os.path.join(out_dir,'X_train.npy'), df_imputed) # save
+        # df_imputed = np.load(os.path.join(out_dir,'X_train.npy'))
+    elif train is not True:
+        knn = load(os.path.join(out_dir,'knnimputer.joblib'))
+        df_imputed = knn.transform(df)
+        np.save(os.path.join(out_dir,'X_test.npy'), df_imputed) # save
+        # df_imputed = np.load(os.path.join(out_dir,'X_test.npy'))
     return df_imputed
 
 def make_objective(X_train, y_train):
@@ -110,7 +118,7 @@ def train(args):
     study = optuna.create_study(direction='maximize')
     objective = make_objective(X_train, y_train)
     print("Starting parameter search")
-    study.optimize(objective, n_trials=1)
+    study.optimize(objective, n_trials=100)
     
     model = xgb.XGBRegressor(**study.best_params, feature_names=all_feats)
     model.fit(X_train, y_train)
@@ -119,6 +127,16 @@ def train(args):
 
     # print best metrics train and test
     print(f'Train R^2 Score: {model.score(X_train,y_train):2.5f}')
+
+    # create and score on test set
+    X_test_df = assemble_features(
+        dataset['test'], 
+        config['feat_cols'], 
+        dataset['embed']
+        )
+    X_test = impute_missing(X_test_df, args.out, train=False)
+    y_test = dataset['test'].loc[:,'Sale_Price']
+    print(f'Test R^2 Score: {model.score(X_test, y_test):2.5f}')
     pdb.set_trace()
 
 if __name__=='__main__':
@@ -136,6 +154,10 @@ if __name__=='__main__':
     
     parser.add_argument('-t', '--train', type=str,
                         default='train_2021-12-24.csv',
+                        help='directory from which data')
+                        
+    parser.add_argument('--test', type=str,
+                        default='test_2022-08-08.csv',
                         help='directory from which data')
 
     parser.add_argument('-o', '--out', type=str,
