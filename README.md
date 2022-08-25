@@ -9,7 +9,7 @@
  - Feature Engineering
  - Scaling & Encoding
 
-## Model Training and Testing
+## Model Results
 
 #TODO: Train - Test split date
 
@@ -20,6 +20,10 @@
 | XG-Boost  | 0.953 | 0.837 |
 
 ![Model_Result](nbs/model_result_comp.png)
+
+### Explain Model Features
+ - Show shap value and PDP plots
+ - 
 
 ## How to Reproduce
 
