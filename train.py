@@ -17,6 +17,8 @@ from sklearn.model_selection import cross_val_score
 
 def load_files(args):
     '''Load all datasets into a datadict
+    Returns:
+        Dict of Dataframes from dataset loading
     '''
     _pth_trn = os.path.join(args.pre, args.train)
     _pth_tst = os.path.join(args.pre, args.test)
@@ -31,7 +33,13 @@ def load_files(args):
     return _dict
 
 def get_embedded_feat(feat, encod_dict, feat_name=None):
-    '''Return embeddings for each feature column using encoded dict
+    '''
+    Args:
+        feat: pandas.Series for a single feature
+        encod_dict: dict of encodings
+        feat_name(str): feature name to be converted
+    Returns:
+        embedding dict for each feature column using encoded dict
     '''
     feat_df = feat.to_frame()
     encodings = encod_dict[feat_name].reset_index()
@@ -40,6 +48,12 @@ def get_embedded_feat(feat, encod_dict, feat_name=None):
 
 def assemble_features(df, feat_cols, embeddings):
     '''Assemble all retrived embeddings and features into one dataframe
+    Args:
+        df: dataframe of features
+        feat_cols: list of features to be encoded
+        embeddings: embedding dict to convert each category in a row
+    Returns:
+        concated features as embeddings from categorical
     '''
     _dflist = []
     
@@ -52,6 +66,12 @@ def assemble_features(df, feat_cols, embeddings):
 def impute_missing(df, out_dir, train=True):
     '''Returns imputed tesonr for train
     Saves the imputer to out_path.
+    Args:
+        df(pandas.DataFrame): DataFrame to be imputed
+        out_dir(str): path to output storage
+        train(bool): whether to indicate train or test phase
+    Returns:
+        imputed dataframe 
     '''
     if train is True:
         knn = KNNImputer()
@@ -69,6 +89,11 @@ def impute_missing(df, out_dir, train=True):
 
 def make_objective(X_train, y_train):
     '''Create and returns Objective function for the optimizer
+    Args:
+        X_train(pandas.DataFrame): features for train
+        y_train(pandas.Series): target for train
+    Returns:
+        objective function to pass to an HPO job
     '''
     def objective(trial, X_train=X_train, y_train=y_train):
         param = {
