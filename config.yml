@@ -1,3 +1,27 @@
+input_file: './data/saleprice_dataset.csv'
+cols:
+ - Advertised_Date
+ - Sold_Date
+ - Sale_Price
+ - Odometer
+ - Power
+ - Fuel_Urban
+ - Make_Code
+ - Family_Code
+ - Year_Group
+ - Region_Description
+ - Vehicle_Code
+
+train_prop: 0.85
+
+cat: 
+ - Make_Code
+ - Family_Code
+ - Region_Description
+
+col_fltrs:
+ - Advertised_Date
+
 feat_cols:
   - Odometer
   - Power
@@ -9,3 +33,5 @@ feat_cols:
   - odo_per_fuel
   - odo_per_power
   - pow_times_odo
+  - sld_wknum
+  - adv_wknum
