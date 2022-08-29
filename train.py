@@ -55,23 +55,23 @@ def impute_missing(df, out_dir, train=True):
     Saves the imputer to out_path.
     '''
     if train is True:
-        knn = KNNImputer()
-        knn.fit(df)
-        df_imputed = knn.transform(df)
-        dump(knn, os.path.join(out_dir,'knnimputer.joblib'))
-        np.save(os.path.join(out_dir,'X_train.npy'), df_imputed) # save
-        # df_imputed = np.load(os.path.join(out_dir,'X_train.npy'))
+        # knn = KNNImputer()
+        # knn.fit(df)
+        # df_imputed = knn.transform(df)
+        # dump(knn, os.path.join(out_dir,'knnimputer.joblib'))
+        # np.save(os.path.join(out_dir,'X_train.npy'), df_imputed) # save
+        df_imputed = np.load(os.path.join(out_dir,'X_train.npy'))
     elif train is not True:
-        knn = load(os.path.join(out_dir,'knnimputer.joblib'))
-        df_imputed = knn.transform(df)
-        np.save(os.path.join(out_dir,'X_test.npy'), df_imputed) # save
-        # df_imputed = np.load(os.path.join(out_dir,'X_test.npy'))
+        # knn = load(os.path.join(out_dir,'knnimputer.joblib'))
+        # df_imputed = knn.transform(df)
+        # np.save(os.path.join(out_dir,'X_test.npy'), df_imputed) # save
+        df_imputed = np.load(os.path.join(out_dir,'X_test.npy'))
     return df_imputed
 
 def make_objective(X_train, y_train):
     '''Create and returns Objective function for the optimizer
     '''
-    def objective(trial):
+    def objective(trial, X_train=X_train, y_train=y_train):
         param = {
             "silent": 1,
             "objective": "reg:squarederror",
@@ -81,7 +81,7 @@ def make_objective(X_train, y_train):
             "alpha": trial.suggest_loguniform("alpha", 1e-8, 1.0e6),
         }
         if param["booster"] == "gbtree" or param["booster"] == "dart":
-            param["max_depth"] = trial.suggest_int("max_depth", 2, 6)
+            param["max_depth"] = trial.suggest_int("max_depth", 2, 5)
             param["eta"] = trial.suggest_loguniform("eta", 1e-8, 0.05)
             param["gamma"] = trial.suggest_loguniform("gamma", 1e-8, 1.0)
             param["grow_policy"] = trial.suggest_categorical("grow_policy", ["depthwise", "lossguide"])
@@ -109,23 +109,24 @@ def train(args):
         config['feat_cols'], 
         dataset['embed']
         )
-    all_feats = X_train_df.columns.tolist() #store feat names to a var
+    # all_feats = X_train_df.columns.tolist() #store feat names to var
     y_train = dataset['train'].loc[:,'Sale_Price']
     # run imputation for missing values and save it
     X_train = impute_missing(X_train_df, args.out)
 
     # Create HPO and find best params
-    study = optuna.create_study(direction='maximize')
-    objective = make_objective(X_train, y_train)
+    # study = optuna.create_study(direction='maximize')
+    # objective = make_objective(X_train, y_train)
     print("Starting parameter search")
-    study.optimize(objective, n_trials=100)
+    # study.optimize(objective, n_trials=100)
     
-    model = xgb.XGBRegressor(**study.best_params, feature_names=all_feats)
-    model.fit(X_train, y_train)
-    # save best model
-    model.save_model(os.path.join(args.out,"xgb_model.json"))
+    # model = xgb.XGBRegressor(**study.best_params, feature_names=all_feats)
+    # model.fit(X_train, y_train)
+    ## save best model
+    # model.save_model(os.path.join(args.out,"xgb_model.json"))
+    model = xgb.XGBRegressor()
+    model.load_model("xgb_model.json")
 
-    # print best metrics train and test
     print(f'Train R^2 Score: {model.score(X_train,y_train):2.5f}')
 
     # create and score on test set
