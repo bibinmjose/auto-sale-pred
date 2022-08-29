@@ -36,7 +36,6 @@ def get_embedded_feat(feat, encod_dict, feat_name=None):
     feat_df = feat.to_frame()
     encodings = encod_dict[feat_name].reset_index()
     feat_tranf = feat_df.merge(encodings, how='left', left_on=[feat_name], right_on=['index'], indicator=True)
-    # print(feat_tranf._merge.value_counts())
     return feat_tranf.loc[:,[c for c in encodings.columns if c.startswith(feat_name)]]
 
 def assemble_features(df, feat_cols, embeddings):
@@ -55,17 +54,17 @@ def impute_missing(df, out_dir, train=True):
     Saves the imputer to out_path.
     '''
     if train is True:
-        # knn = KNNImputer()
-        # knn.fit(df)
-        # df_imputed = knn.transform(df)
-        # dump(knn, os.path.join(out_dir,'knnimputer.joblib'))
-        # np.save(os.path.join(out_dir,'X_train.npy'), df_imputed) # save
-        df_imputed = np.load(os.path.join(out_dir,'X_train.npy'))
+        knn = KNNImputer()
+        knn.fit(df)
+        df_imputed = knn.transform(df)
+        dump(knn, os.path.join(out_dir,'knnimputer.joblib'))
+        np.save(os.path.join(out_dir,'X_train.npy'), df_imputed) # save
+        # df_imputed = np.load(os.path.join(out_dir,'X_train.npy'))
     elif train is not True:
-        # knn = load(os.path.join(out_dir,'knnimputer.joblib'))
-        # df_imputed = knn.transform(df)
-        # np.save(os.path.join(out_dir,'X_test.npy'), df_imputed) # save
-        df_imputed = np.load(os.path.join(out_dir,'X_test.npy'))
+        knn = load(os.path.join(out_dir,'knnimputer.joblib'))
+        df_imputed = knn.transform(df)
+        np.save(os.path.join(out_dir,'X_test.npy'), df_imputed) # save
+        # df_imputed = np.load(os.path.join(out_dir,'X_test.npy'))
     return df_imputed
 
 def make_objective(X_train, y_train):
@@ -93,7 +92,7 @@ def make_objective(X_train, y_train):
         
         model = xgb.XGBRegressor(**param, n_jobs=-1)
         
-        return cross_val_score(model, X_train, y_train, n_jobs=-1, cv=10, scoring='r2').mean()
+        return cross_val_score(model, X_train, y_train, n_jobs=-1, cv=8, scoring='r2').mean()
     return objective
 
 
@@ -109,23 +108,24 @@ def train(args):
         config['feat_cols'], 
         dataset['embed']
         )
-    # all_feats = X_train_df.columns.tolist() #store feat names to var
+    all_feats = X_train_df.columns.tolist() #store feat names to var
     y_train = dataset['train'].loc[:,'Sale_Price']
     # run imputation for missing values and save it
     X_train = impute_missing(X_train_df, args.out)
 
     # Create HPO and find best params
-    # study = optuna.create_study(direction='maximize')
-    # objective = make_objective(X_train, y_train)
+    study = optuna.create_study(direction='maximize')
+    objective = make_objective(X_train, y_train)
     print("Starting parameter search")
-    # study.optimize(objective, n_trials=100)
+    study.optimize(objective, n_trials=200)
+    study.trials_dataframe().to_csv(os.path.join(args.out,"HPO_df.csv"), index=False)
     
-    # model = xgb.XGBRegressor(**study.best_params, feature_names=all_feats)
-    # model.fit(X_train, y_train)
-    ## save best model
-    # model.save_model(os.path.join(args.out,"xgb_model.json"))
-    model = xgb.XGBRegressor()
-    model.load_model("xgb_model.json")
+    model = xgb.XGBRegressor(**study.best_params, feature_names=all_feats)
+    model.fit(X_train, y_train)
+    # save best model
+    model.save_model(os.path.join(args.out,"xgb_model.json"))
+    # model = xgb.XGBRegressor()
+    # model.load_model("xgb_model.json")
 
     print(f'Train R^2 Score: {model.score(X_train,y_train):2.5f}')
 
@@ -138,7 +138,7 @@ def train(args):
     X_test = impute_missing(X_test_df, args.out, train=False)
     y_test = dataset['test'].loc[:,'Sale_Price']
     print(f'Test R^2 Score: {model.score(X_test, y_test):2.5f}')
-    pdb.set_trace()
+    # pdb.set_trace()
 
 if __name__=='__main__':
 
