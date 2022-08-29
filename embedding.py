@@ -217,3 +217,7 @@ def fit_transform(data, embeddings, encoders, drop_categorical_vars=False):
         return data.drop(list(embeddings.keys()), axis=1)
     else:
         return data
+
+def label_point(x, y, df, ax):
+    for i, point in df.iterrows():
+        ax.text(point[x]+.02, point[y], str(i))

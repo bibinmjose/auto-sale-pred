@@ -14,6 +14,11 @@ cols:
 
 train_prop: 0.85
 
+cat: 
+ - Make_Code
+ - Family_Code
+ - Region_Description
+
 col_fltrs:
  - Advertised_Date
 
