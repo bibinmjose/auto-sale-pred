@@ -12,10 +12,10 @@
 
  - Model will be used to predict future car value using the engineered features from dataset.
  - Model serving requires running an inference pipeline every day since some features like age is calculated based on the prediction date.
- - Imputation: New models which were not sold before will always find its way into the market. We use a nearest neighbour imputer to address this issue to classify the car based on the best available features of simillar category. In future with more samples this issue will be automatically resolved.
- - Feature Engineering: We have engineering some fetaures based on the findings from our [EDA](nbs/eda.ipynb). Some of these incorporated features are found to significant driver of the sales price.
- - Scaling & Encoding: scaling not used for xgb model since the split of trees is not affected by scaling. But we have used used sacling while a linear model was built using [ridge regression](nbs/regression.ipynb).
- - Model Selection: We have decided to use a XGB-regression model to conviniently incorporate non-linear interactions of the features, although a regularized linear model was buitl as a baseline with results [shown](#r-2-score-comparison).
+ - **Imputation:** New models which were not sold before will always find its way into the market. We use a nearest neighbour imputer to address this issue to classify the car based on the best available features of simillar category. In future with more samples this issue will be automatically resolved.
+ - **Feature Engineering:** We have engineering some fetaures based on the findings from our [EDA](nbs/eda.ipynb). Some of these incorporated features are found to significant driver of the sales price.
+ - **Scaling & Encoding:** scaling not used for xgb model since the split of trees is not affected by scaling. But we have used used sacling while a linear model was built using [ridge regression](nbs/regression.ipynb).
+ - **Model Selection:** We have decided to use a XGB-regression model to conviniently incorporate non-linear interactions of the features, although a regularized linear model was built as a baseline with results [shown](#r-2-score-comparison).
 
 ### Embeddings
 
@@ -34,9 +34,9 @@ Categorical columns are converted to embeddings using `make_embeddings.py` and t
 Since the model will be used for furture car value predictions, train/test split should be done on a date (Sold date).
 
 - TRAIN Max Date: `2021-12-24`
-- TRAIN # of records: 99586
+- TRAIN # of records: `99586`
 - TEST Max Date: `2022-08-08`
-- TEST # of records: 17574
+- TEST # of records: `17574`
 
 
 ### R-2 Score comparison
@@ -59,11 +59,11 @@ A concise view on how each feature influence sales price.
 
 Figure below shows the PDP for the Family_Code encoding vs age of the car.
 
- ![Family_Code_enc1_shape](nbs/Family_Code_enc_1_shap.png)
+![Family_Code_enc1_shape](nbs/Family_Code_enc_1_shap.png)
  
- An example of how a Price is decided by the model
+An example of how a Price is decided by the model
 
- Example of a record
+#### Example of a record
 
 ![example record](nbs/exmp_rec.png)
 
