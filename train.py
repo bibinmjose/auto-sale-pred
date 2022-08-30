@@ -149,8 +149,8 @@ def train(args):
     model.fit(X_train, y_train)
     ## save best model
     model.save_model(os.path.join(args.out,"xgb_model.json"))
-    model = xgb.XGBRegressor()
-    model.load_model(os.path.join(args.out,"xgb_model.json"))
+    # model = xgb.XGBRegressor()
+    # model.load_model(os.path.join(args.out,"xgb_model.json"))
 
     print(f'Train R^2 Score: {model.score(X_train,y_train):2.5f}')
 
