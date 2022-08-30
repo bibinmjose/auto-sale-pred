@@ -2,7 +2,7 @@
 
 1. `cd` into _root folder_ and follow below
 2. `pip install -r requirements.txt`
-3. update `config.yml` file if need as the variables will be loaded from it.
+3. update `config.yml` file if needed as the variables will be loaded from it.
 4. move data to `data/saleprice_dataset.csv`
 5. run `python dataprocess.py` to generate test/train datset
 6. run `python make_embeddings.py` to generate embedding in `./data/embeddings.pkl`
