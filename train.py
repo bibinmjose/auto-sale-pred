@@ -135,10 +135,10 @@ def train(args):
         )
     all_feats = X_train_df.columns.tolist() #store feat names to var
     y_train = dataset['train'].loc[:,'Sale_Price']
-    # run imputation for missing values and save it
+    ## run imputation for missing values and save it
     X_train = impute_missing(X_train_df, args.out)
 
-    # Create HPO and find best params
+    ## Create HPO and find best params
     study = optuna.create_study(direction='maximize')
     objective = make_objective(X_train, y_train)
     print("Starting parameter search")
@@ -147,14 +147,14 @@ def train(args):
     
     model = xgb.XGBRegressor(**study.best_params, feature_names=all_feats)
     model.fit(X_train, y_train)
-    # save best model
+    ## save best model
     model.save_model(os.path.join(args.out,"xgb_model.json"))
-    # model = xgb.XGBRegressor()
-    # model.load_model("xgb_model.json")
+    model = xgb.XGBRegressor()
+    model.load_model(os.path.join(args.out,"xgb_model.json"))
 
     print(f'Train R^2 Score: {model.score(X_train,y_train):2.5f}')
 
-    # create and score on test set
+    ## create and score on test set
     X_test_df = assemble_features(
         dataset['test'], 
         config['feat_cols'], 
@@ -163,7 +163,39 @@ def train(args):
     X_test = impute_missing(X_test_df, args.out, train=False)
     y_test = dataset['test'].loc[:,'Sale_Price']
     print(f'Test R^2 Score: {model.score(X_test, y_test):2.5f}')
+
+    y_pred = pd.DataFrame(model.predict(X_test),columns=['Sale_Price_Predition'])
+    y_train_pred = pd.DataFrame(model.predict(X_train),columns=['Sale_Price_Predition'])
+    r2 = r2_score(y_test,y_pred,multioutput='variance_weighted')
+    r2_train = r2_score(y_train,y_train_pred,multioutput='variance_weighted')
+    print(f'Test R^2 Score Calculated: {r2_train:2.5f}')
+    print(f'Test R^2 Score Calculated: {r2:2.5f}')
     # pdb.set_trace()
+
+    # save test predicitons
+    df = pd.concat( 
+        [ 
+            pd.DataFrame(X_test, columns=all_feats), 
+            pd.DataFrame(y_test, columns=['Sale_Price']), 
+            y_pred
+        ], axis=1 
+        )
+
+    df.to_csv(os.path.join(args.out,"test_prediction.csv"), index=False)
+
+    # save train predicitons
+    df = pd.concat( 
+        [ 
+            pd.DataFrame(X_train, columns=all_feats), 
+            pd.DataFrame(y_train, columns=['Sale_Price']), 
+            y_train_pred
+        ], axis=1 
+        )
+
+    df.to_csv(os.path.join(args.out,"train_prediction.csv"), index=False)
+    
+    
+    
 
 if __name__=='__main__':
 
