@@ -21,11 +21,11 @@
 
 Categorical columns are converted to embeddings using `make_embeddings.py` and the plots below visualizes them for each category.
 #### Family Code
-![Family_Code](nbs/Family_Code_enc.png)
+![Family_Code](nbs/imgs/Family_Code_enc.png)
 #### Make Code
-![Make_Coade](nbs/Make_Code_enc.png)
+![Make_Coade](nbs/imgs/Make_Code_enc.png)
 #### Region
-![Region](nbs/Region_Description_enc.png)
+![Region](nbs/imgs/Region_Description_enc.png)
 
 ## Model Results
 
@@ -45,28 +45,28 @@ Since the model will be used for furture car value predictions, train/test split
 | Ridge     | 0.785 | 0.679 |
 | XG-Boost  | 0.916 | 0.793 |
 
-![Model_Result](nbs/model_result_comp.png)
+![Model_Result](nbs/imgs/model_result_comp.png)
 
 ### Explain Model Features
 
 The feature importance map shows the most relavant features which contribute towards the model prediction. Car's Family seems to be the most deciding factor for its price, along with odometer reading, power and age of the car. It is interesting to note that car family and make has significant impact on its price.
 
-![feat_imp](nbs/feture_imp.png)
+![feat_imp](nbs/imgs/feture_imp.png)
 
 A concise view on how each feature influence sales price.
 
-![feat_imp0](nbs/feture_imp0.png)
+![feat_imp0](nbs/imgs/feture_imp0.png)
 
 Figure below shows the PDP for the Family_Code encoding vs age of the car.
 
-![Family_Code_enc1_shape](nbs/Family_Code_enc_1_shap.png)
+![Family_Code_enc1_shape](nbs/imgs/Family_Code_enc_1_shap.png)
  
 An example of how a Price is decided by the model
 
 #### Example of a record
 
-![example record](nbs/exmp_rec.png)
+![example record](nbs/imgs/exmp_rec.png)
 
 Depiction of how a price is achieved.
 
-![example record](nbs/exmp_rec_img.png)
+![example record](nbs/imgs/exmp_rec_img.png)
