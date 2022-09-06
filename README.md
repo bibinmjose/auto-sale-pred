@@ -47,6 +47,10 @@ Since the model will be used for furture car value predictions, train/test split
 
 ![Model_Result](nbs/imgs/model_result_comp.png)
 
+### Error Distribution
+
+![error](nbs/imgs/error_comp.png)
+
 ### Explain Model Features
 
 The feature importance map shows the most relavant features which contribute towards the model prediction. Car's Family seems to be the most deciding factor for its price, along with odometer reading, power and age of the car. It is interesting to note that car family and make has significant impact on its price.
